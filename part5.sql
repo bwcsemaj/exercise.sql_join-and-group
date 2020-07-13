@@ -1,8 +1,10 @@
 SELECT CONCAT(employees.lastName, ", ", employees.firstName),
     COUNT(orders.customerNumber) as "# Orders", 
-    orderdetails.quantityOrdered*orderdetails.priceEach as "Total Sale"-- TOTAL SALE AMOUNT
+    COALESCE(orderdetails.quantityOrdered*orderdetails.priceEach, 0) as "Total Sale"-- TOTAL SALE AMOUNT
     FROM employees
-    JOIN customers ON employees.employeeNumber=customers.salesRepEmployeeNumber
-    JOIN orders ON orders.customerNumber=customers.customerNumber
-    JOIN orderdetails ON orderdetails.orderNumber=orders.orderNumber
+    LEFT JOIN customers ON employees.employeeNumber=customers.salesRepEmployeeNumber
+    LEFT JOIN orders ON orders.customerNumber=customers.customerNumber
+    LEFT JOIN orderdetails ON orderdetails.orderNumber=orders.orderNumber
+    WHERE employees.jobTitle="Sales Rep"
     GROUP BY employees.employeeNumber
+    ORDER BY orderdetails.quantityOrdered*orderdetails.priceEach DESC
